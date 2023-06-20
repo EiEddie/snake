@@ -1,3 +1,5 @@
+.vscode
+
 # docs building lists
 _build
 _static
