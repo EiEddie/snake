@@ -10,6 +10,8 @@ Welcome to snake's documentation!
   :maxdepth: 2
   :caption: Contents:
 
+  storage
+
 
 Indices and tables
 ==================
