@@ -11,6 +11,7 @@ Welcome to snake's documentation!
   :caption: Contents:
 
   storage
+  food_generation
 
 
 Indices and tables
