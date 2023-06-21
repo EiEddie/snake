@@ -11,53 +11,71 @@ Storage
 .. raw:: html
 
   <style>
-  table {border-collapse: collapse;}
-  td {
+  table.fig {
+    border-collapse: collapse;
+  }
+
+  table.fig td {
     height: 50px;
     width: 50px;
     padding: 0px;
     border: 1px solid #000;
     text-align: center;
   }
-  .T {background-color:#1683d8;}
-  .r {border-right: none;}
-  .l {border-left: none;}
-  .u {border-top: none;}
-  .d {border-bottom: none;}
+
+  table.fig td[class] {
+    background-color: #999;
+  }
+
+  table.fig td.r {
+    border-right: none;
+  }
+
+  table.fig td.l {
+    border-left: none;
+  }
+
+  table.fig td.u {
+    border-top: none;
+  }
+
+  table.fig td.d {
+    border-bottom: none;
+  }
   </style>
 
 .. raw:: html
 
-  <table><tbody>
+  <table class="fig"><tbody>
   <tr>
     <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-    <td class="d T"></td>
-    <td class="r T">4</td>
-    <td class="l T"><i>h</i></td>
+    <td class="d"></td>
+    <td class="r">4</td>
+    <td class="l"><i>h</i></td>
   </tr>
   <tr>
-    <td class="r T">0</td>
-    <td class="l r T"></td>
-    <td class="l r T"></td>
-    <td class="l r T"></td>
-    <td class="l T"></td>
+    <td class="r">0</td>
+    <td class="l r"></td>
+    <td class="l r"></td>
+    <td class="l r"></td>
+    <td class="l"></td>
     <td></td><td></td>
-    <td class="t d T"></td>
-    <td></td><td></td>
-  </tr>
-  <tr>
-    <td></td><td></td><td></td><td></td>
-    <td class="d T">1</td>
-    <td></td><td></td>
-    <td class="u T">3</td>
+    <td class="u d"></td>
     <td></td><td></td>
   </tr>
   <tr>
     <td></td><td></td><td></td><td></td>
-    <td class="u T"></td>
-    <td class="r T">2</td>
-    <td class="l r T"></td>
-    <td class="l T"></td>
+    <td class="d">1</td>
+    <td></td><td></td>
+    <td class="u">3</td>
+    <td></td><td></td>
+  </tr>
+  <tr>
+    <td></td><td></td><td></td><td></td>
+    <td class="u"></td>
+    <td class="r">2</td>
+    <td class="l r"></td>
+    <td class="l"></td>
     <td></td><td></td>
   </tr>
   </tbody></table>
