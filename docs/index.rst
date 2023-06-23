@@ -12,11 +12,14 @@ Welcome to snake's documentation!
 
   storage
   food_generation
+  collision_detection
 
 
-Indices and tables
-==================
+Seaech
+======
 
-* :ref:`genindex`
-* :ref:`modindex`
+..
+  * :ref:`genindex`
+  * :ref:`modindex`
+
 * :ref:`search`
