@@ -10,42 +10,6 @@ Storage
 
 .. raw:: html
 
-  <style>
-  table.fig {
-    border-collapse: collapse;
-  }
-
-  table.fig td {
-    height: 50px;
-    width: 50px;
-    padding: 0px;
-    border: 1px solid #000;
-    text-align: center;
-  }
-
-  table.fig td[class] {
-    background-color: #999;
-  }
-
-  table.fig td.r {
-    border-right: none;
-  }
-
-  table.fig td.l {
-    border-left: none;
-  }
-
-  table.fig td.u {
-    border-top: none;
-  }
-
-  table.fig td.d {
-    border-bottom: none;
-  }
-  </style>
-
-.. raw:: html
-
   <table class="fig"><tbody>
   <tr>
     <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
