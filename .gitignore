@@ -1,6 +1,11 @@
+# IDEs and editors setting lists
 .vscode
+.idea
 
-# docs building lists
+# Project building lists
+build
+
+# Docs building lists
 _build
 _templates
 
