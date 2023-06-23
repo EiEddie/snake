@@ -4,6 +4,7 @@
 
 # Project building lists
 build
+bin
 
 # Docs building lists
 _build
