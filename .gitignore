@@ -2,7 +2,6 @@
 
 # docs building lists
 _build
-_static
 _templates
 
 # Prerequisites
