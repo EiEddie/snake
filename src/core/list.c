@@ -18,7 +18,7 @@ void list_free(struct list_t* list) {
 	list->len = 0;
 }
 
-void list_push(struct list_t* list, struct val_t val) {
+void list_push_back(struct list_t* list, struct val_t val) {
 	if(list->len == 0) {
 		list->head = list->tail =
 		    malloc(sizeof(struct node_t));
@@ -36,6 +36,14 @@ void list_pop_front(struct list_t* list) {
 	list->head = list->head->prev;
 	free(tmp);
 	list->len--;
+}
+
+struct val_t list_head(struct list_t* list) {
+	return list->head->val;
+}
+
+struct val_t list_tail(struct list_t* list) {
+	return list->tail->val;
 }
 
 
