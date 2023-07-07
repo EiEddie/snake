@@ -39,6 +39,7 @@ void snake_init(struct snake_t *snake,
 
 	snake->field = field;
 	snake->collision_dist = INT_MAX;
+	snake->food_dist = INT_MAX;
 	snake->len = 1;
 	snake->dir = dir;
 	list_init(&snake->body);
@@ -47,6 +48,7 @@ void snake_init(struct snake_t *snake,
 	list_push_back(&snake->body, val);
 
 	snake_set_collision_dist(snake);
+	snake_set_food_dist(snake);
 }
 
 void snake_free(struct snake_t *snake) {
@@ -130,4 +132,32 @@ void snake_set_collision_dist(struct snake_t *snake) {
 		    min(snake->collision_dist, snake_pos.y + 1);
 		break;
 	}
+}
+
+void snake_set_food_dist(struct snake_t *snake) {
+	snake->food_dist = INT_MAX;
+	pos_t snake_pos = list_tail(&snake->body).pos;
+
+	// 若食物不在蛇移动方向上
+	if((snake->dir & 1
+	        // 上下移动
+	        ? snake->field->food.y < snake_pos.y
+	        // 左右移动
+	        : snake->field->food.x < snake_pos.x)
+	   ^ (snake->dir & 0b10))
+		return;
+
+	// 若食物不在蛇头正前方
+	if(snake->dir & 1 ? snake->field->food.x != snake_pos.x
+	                  : snake->field->food.y != snake_pos.y)
+		return;
+
+	if(snake->dir & 1)
+		// 上下移动
+		snake->food_dist =
+		    abs(snake->field->food.y - snake_pos.y);
+	else
+		// 左右移动
+		snake->food_dist =
+		    abs(snake->field->food.x - snake_pos.x);
 }

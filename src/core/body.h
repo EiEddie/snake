@@ -27,17 +27,21 @@ struct snake_t {
 	struct field_t* field;
 
 	int collision_dist;
+	int food_dist;
 
 	int dir;
 	size_t len;
 	struct list_t body;
 };
 
-void snake_init(struct snake_t* snake, struct field_t* field);
+void snake_init(struct snake_t* snake,
+                struct field_t* field);
 
 void snake_free(struct snake_t* snake);
 
 void snake_set_collision_dist(struct snake_t* snake);
+
+void snake_set_food_dist(struct snake_t* snake);
 
 /**
  * \brief 移动
@@ -65,5 +69,4 @@ int snake_veer(struct snake_t* snake, int dir);
 int snake_eat(struct snake_t* snake);
 
 // TODO: 以上三个方法
-// TODO: 添加与食物的距离
 #endif //SNAKE_SRC_CORE_BODY_H_
