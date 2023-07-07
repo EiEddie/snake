@@ -14,25 +14,31 @@ pos_t pnt_move(pos_t pnt, int dir, int step) {
 }
 
 
-void snake_init(struct snake_t *snake, size_t wight,
+void field_init(struct field_t *field, size_t wight,
                 size_t height) {
+	field->wight = wight;
+	field->height = height;
+	field->food.x = field->food.y = 0;
+}
+
+
+void snake_init(struct snake_t *snake,
+                struct field_t *field) {
 	srand(time(NULL));
-	pos_t begin_pnt = {rand() % wight, rand() % height};
+	pos_t begin_pnt = {rand() % field->wight,
+	                   rand() % field->height};
 
 	// 使蛇向中心方向走, 避免开局撞墙
-	pos_t offset = {(int)wight / 2 - begin_pnt.x,
-	                (int)height / 2 - begin_pnt.y};
+	pos_t offset = {(int)field->wight / 2 - begin_pnt.x,
+	                (int)field->height / 2 - begin_pnt.y};
 	int dir = abs(offset.x) < abs(offset.y);
 	if(dir)
 		dir |= (offset.y < 0) << 1;
 	else
 		dir |= (offset.x < 0) << 1;
 
-	snake->wight = wight;
-	snake->height = height;
-	snake->dist =
-	    // 此类型的最大值
-	    (1 << (8 * sizeof(snake->dist) - 1)) - 1;
+	snake->field = field;
+	snake->collision_dist = INT_MAX;
 	snake->len = 1;
 	snake->dir = dir;
 	list_init(&snake->body);
@@ -40,7 +46,7 @@ void snake_init(struct snake_t *snake, size_t wight,
 	// 蛇头储存在链表的尾部
 	list_push_back(&snake->body, val);
 
-	snake_set_dist(snake);
+	snake_set_collision_dist(snake);
 }
 
 void snake_free(struct snake_t *snake) {
@@ -48,12 +54,10 @@ void snake_free(struct snake_t *snake) {
 	list_free(&snake->body);
 }
 
-void snake_set_dist(struct snake_t *snake) {
+void snake_set_collision_dist(struct snake_t *snake) {
 	struct iter_t iter;
 	iter_init(&iter, &snake->body);
-	snake->dist =
-	    // 此类型的最大值
-	    (1 << (8 * sizeof(snake->dist) - 1)) - 1;
+	snake->collision_dist = INT_MAX;
 
 	// 与自身的碰撞检测
 	pos_t snake_pos = list_tail(&snake->body).pos;
@@ -95,31 +99,35 @@ void snake_set_dist(struct snake_t *snake) {
 
 		if(snake->dir & 1)
 			// 上下移动
-			snake->dist =
-			    min(snake->dist,
+			snake->collision_dist =
+			    min(snake->collision_dist,
 			        abs(section.pos.y - snake_pos.y));
 		else
 			// 左右移动
-			snake->dist =
-			    min(snake->dist,
+			snake->collision_dist =
+			    min(snake->collision_dist,
 			        abs(section.pos.x - snake_pos.x));
 	} while(!iter_next(&iter));
 
 	// 与墙壁的碰撞检测
 	switch(snake->dir) {
 	case 0:
-		snake->dist =
-		    min(snake->dist, snake->wight - snake_pos.x);
+		snake->collision_dist =
+		    min(snake->collision_dist,
+		        snake->field->wight - snake_pos.x);
 		break;
 	case 1:
-		snake->dist =
-		    min(snake->dist, snake->height - snake_pos.y);
+		snake->collision_dist =
+		    min(snake->collision_dist,
+		        snake->field->height - snake_pos.y);
 		break;
 	case 2:
-		snake->dist = min(snake->dist, snake_pos.x + 1);
+		snake->collision_dist =
+		    min(snake->collision_dist, snake_pos.x + 1);
 		break;
 	case 3:
-		snake->dist = min(snake->dist, snake_pos.y + 1);
+		snake->collision_dist =
+		    min(snake->collision_dist, snake_pos.y + 1);
 		break;
 	}
 }
