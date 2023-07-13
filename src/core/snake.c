@@ -1,4 +1,4 @@
-#include <core/body.h>
+#include <core/snake.h>
 
 
 pos_t pnt_move(pos_t pnt, int dir, int step) {

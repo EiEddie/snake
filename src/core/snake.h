@@ -1,5 +1,5 @@
-#ifndef SNAKE_SRC_CORE_BODY_H_
-#define SNAKE_SRC_CORE_BODY_H_
+#ifndef SNAKE_SRC_CORE_SNAKE_H_
+#define SNAKE_SRC_CORE_SNAKE_H_
 
 #include <core/list.h>
 #include <time.h>
@@ -64,4 +64,4 @@ int snake_eat(struct snake_t* snake);
 int gen_food(struct field_t* field, struct snake_t* snake);
 // TODO: 此函数
 
-#endif //SNAKE_SRC_CORE_BODY_H_
+#endif //SNAKE_SRC_CORE_SNAKE_H_
