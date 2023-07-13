@@ -38,9 +38,9 @@ void list_push_back(struct list_t* list, struct val_t val);
 
 void list_pop_front(struct list_t* list);
 
-struct val_t list_head(struct list_t* list);
+struct val_t* list_head(struct list_t* list);
 
-struct val_t list_tail(struct list_t* list);
+struct val_t* list_tail(struct list_t* list);
 
 
 struct iter_t {

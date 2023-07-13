@@ -38,12 +38,12 @@ void list_pop_front(struct list_t* list) {
 	list->len--;
 }
 
-struct val_t list_head(struct list_t* list) {
-	return list->head->val;
+struct val_t* list_head(struct list_t* list) {
+	return &list->head->val;
 }
 
-struct val_t list_tail(struct list_t* list) {
-	return list->tail->val;
+struct val_t* list_tail(struct list_t* list) {
+	return &list->tail->val;
 }
 
 

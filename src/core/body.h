@@ -44,22 +44,14 @@ void snake_set_collision_dist(struct snake_t* snake);
 void snake_set_food_dist(struct snake_t* snake);
 
 /**
- * \brief 移动
+ * \brief 移动与转向
  *
  * 蛇身的移动, 长度变化, 碰撞判断
+ * 蛇头转向, 重设与障碍和食物的距离
  *
  * \retval -1 发生碰撞
  */
-int snake_move(struct snake_t* snake);
-
-/**
- * \brief 转向
- *
- * 蛇头转向, 重设与障碍和食物的距离
- *
- * \retval -1 给定的方向与蛇目前的移动方向平行
- */
-int snake_veer(struct snake_t* snake, int dir);
+int snake_move(struct snake_t* snake, int dir);
 
 /**
  * \brief 吃掉食物
@@ -68,5 +60,8 @@ int snake_veer(struct snake_t* snake, int dir);
  */
 int snake_eat(struct snake_t* snake);
 
-// TODO: 以上三个方法
+
+int gen_food(struct field_t* field, struct snake_t* snake);
+// TODO: 此函数
+
 #endif //SNAKE_SRC_CORE_BODY_H_
