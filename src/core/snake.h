@@ -29,6 +29,8 @@ struct snake_t {
 	int collision_dist;
 	int food_dist;
 
+	int food_cnt;
+
 	int dir;
 	size_t len;
 	struct list_t body;

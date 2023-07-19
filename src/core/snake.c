@@ -40,6 +40,7 @@ void snake_init(struct snake_t *snake,
 	snake->field = field;
 	snake->collision_dist = INT_MAX;
 	snake->food_dist = INT_MAX;
+	snake->food_cnt = 0;
 	snake->len = 1;
 	snake->dir = dir;
 	list_init(&snake->body);
@@ -164,6 +165,7 @@ void snake_set_food_dist(struct snake_t *snake) {
 
 int snake_eat(struct snake_t *snake) {
 	if(snake->food_dist <= 0) {
+		snake->food_cnt++;
 		// TODO: 生成新的食物
 		snake_set_food_dist(snake);
 		return 0;
