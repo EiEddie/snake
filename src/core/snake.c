@@ -24,8 +24,8 @@ void field_init(struct field_t *field, size_t wight,
 
 void snake_init(struct snake_t *snake,
                 struct field_t *field) {
-	pos_t begin_pnt = {rand() % field->wight,
-	                   rand() % field->height};
+	pos_t begin_pnt = {(int)(rand() % field->wight),
+	                   (int)(rand() % field->height)};
 
 	// 使蛇向中心方向走, 避免开局撞墙
 	pos_t offset = {(int)field->wight / 2 - begin_pnt.x,
@@ -257,21 +257,25 @@ pos_t gen_food_outer(int w, int h, pos_t near, pos_t far) {
 pos_t gen_food_inner(pos_t near, pos_t far,
                      struct snake_t *snake) {
 	pos_t ans = {};
-	int w = far.x - near.x + 1;
-	int h = far.y - near.y + 1;
+	/** \brief 内部的宽高 */
+	int w = far.x - near.x + 1, h = far.y - near.y + 1;
 	int *stack = calloc(w * h, sizeof(int));
 
+	// 在栈上标注所有蛇身占用的位置
 	struct iter_t iter;
 	iter_init(&iter, &snake->body);
 	do {
 		struct val_t val = iter_val(&iter);
-		for(size_t i = 0; i < val.len; i++) {
-			pos_t tmp = pnt_move(val.pos, val.dir, (int)i);
+		for(size_t _ = 0; _ < val.len; _++) {
+			pos_t tmp = pnt_move(val.pos, val.dir, (int)_);
 			stack[tmp.y * w + tmp.x] = 1;
 		}
 	} while(!iter_next(&iter));
 
-	int index = rand() % (w * h - snake->len);
+	// 随机生成食物在内部且未被蛇身占用位置的序号
+	int index = (int)(rand() % (w * h - snake->len));
+
+	// 将上述序号映射到内部所有位置的序号
 	for(int i = 0; i < w * h; i++) {
 		if(stack[i] == 1)
 			continue;
@@ -282,6 +286,7 @@ pos_t gen_food_inner(pos_t near, pos_t far,
 		index--;
 	}
 
+	// 获得食物在整个网格, 即外部的位置
 	ans.x = ans.x + near.x;
 	ans.y = ans.y + near.y;
 
