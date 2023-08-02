@@ -22,39 +22,138 @@ void field_init(struct field_t *field, size_t wight,
 }
 
 
-void snake_init(struct snake_t *snake,
-                struct field_t *field) {
-	pos_t begin_pnt = {(int)(rand() % field->wight),
-	                   (int)(rand() % field->height)};
+/**
+ * \param w 外部宽度
+ * \param h 外部高度
+ */
+pos_t gen_food_outer(int w, int h, pos_t near, pos_t far) {
+	pos_t ans = {};
 
-	// 使蛇向中心方向走, 避免开局撞墙
-	pos_t offset = {(int)field->wight / 2 - begin_pnt.x,
-	                (int)field->height / 2 - begin_pnt.y};
-	int dir = abs(offset.x) < abs(offset.y);
-	if(dir)
-		dir |= (offset.y < 0) << 1;
-	else
-		dir |= (offset.x < 0) << 1;
+	/** \brief 内部格子总数 */
+	int inner_cnt =
+	    (far.x - near.x + 1) * (far.y - near.y + 1);
+	/** \brief 外部格子总数 */
+	int outer_cnt = w * h - inner_cnt;
 
-	snake->field = field;
-	snake->collision_dist = INT_MAX;
-	snake->food_dist = INT_MAX;
-	snake->food_cnt = 0;
-	snake->len = 1;
-	snake->dir = dir;
-	list_init(&snake->body);
-	struct val_t val = {begin_pnt, dir, 1};
-	// 蛇头储存在链表的尾部
-	list_push_back(&snake->body, val);
+	int index = rand() % outer_cnt;
+	if(index < near.x + near.y * w) {
+		ans.x = index % w;
+		ans.y = index / w;
+	} else if(index > far.x + far.y * w) {
+		ans.x = (index + inner_cnt) % w;
+		ans.y = (index + inner_cnt) / w;
+	}
+	/* else */
+	// FIXME: O(1) 的算法实现
+	for(int i = 0; i < far.y - near.y; i++) {
+		int tmp = index + (i + 1) * (far.x - near.x + 1);
+		if(!((near.y + i) * w + far.x < tmp
+		     && tmp < (near.y + i + 1) * w + near.x))
+			continue;
+		ans.x = tmp % w;
+		ans.y = tmp / w;
+	}
 
-	snake_set_collision_dist(snake);
-	snake_set_food_dist(snake);
+	return ans;
 }
 
-void snake_free(struct snake_t *snake) {
-	snake->len = 0;
-	list_free(&snake->body);
+pos_t gen_food_inner(pos_t near, pos_t far,
+                     struct snake_t *snake) {
+	pos_t ans = {};
+	/** \brief 内部的宽高 */
+	int w = far.x - near.x + 1, h = far.y - near.y + 1;
+	int *stack = calloc(w * h, sizeof(int));
+
+	// 在栈上标注所有蛇身占用的位置
+	struct iter_t iter;
+	iter_init(&iter, &snake->body);
+	do {
+		struct val_t val = iter_val(&iter);
+		for(size_t _ = 0; _ < val.len; _++) {
+			pos_t tmp = pnt_move(val.pos, val.dir, (int)_);
+			stack[tmp.y * w + tmp.x] = 1;
+		}
+	} while(!iter_next(&iter));
+
+	// 随机生成食物在内部且未被蛇身占用位置的序号
+	int index = (int)(rand() % (w * h - snake->len));
+
+	// 将上述序号映射到内部所有位置的序号
+	for(int i = 0; i < w * h; i++) {
+		if(stack[i] == 1)
+			continue;
+		if(index == 0) {
+			ans.x = i % w;
+			ans.y = i / w;
+		}
+		index--;
+	}
+
+	// 获得食物在整个网格, 即外部的位置
+	ans.x = ans.x + near.x;
+	ans.y = ans.y + near.y;
+
+	free(stack);
+	return ans;
 }
+
+/**
+ * \brief 生成食物
+ *
+ * \warning 使用前需设定随机数种子
+ * \retval -1 生成失败: 没有空间
+ */
+int gen_food(struct field_t *field, struct snake_t *snake) {
+	// 检测蛇身范围, 即内部
+	pos_t near = {};
+	pos_t far = {};
+
+	struct iter_t iter;
+	iter_init(&iter, &snake->body);
+	do {
+		pos_t tmp = iter_val(&iter).pos;
+		near.x = min(near.x, tmp.x);
+		near.y = min(near.y, tmp.y);
+		far.x = max(far.x, tmp.x);
+		far.y = max(far.y, tmp.y);
+	} while(!iter_next(&iter));
+
+	{
+		/** \brief snake_head */
+		struct val_t shead = *list_tail(&snake->body);
+		pos_t tmp = pnt_move(shead.pos, shead.dir,
+		                     (int)(shead.len - 1));
+		near.x = min(near.x, tmp.x);
+		near.y = min(near.y, tmp.y);
+		far.x = max(far.x, tmp.x);
+		far.y = max(far.y, tmp.y);
+	}
+
+	// 计数
+	/** \brief 外部宽高 */
+	int w = (int)field->wight, h = (int)field->wight;
+	/** \brief 内部格子总数 */
+	int inner_cnt =
+	    (far.x - near.x + 1) * (far.y - near.y + 1);
+	/** \brief 外部格子总数 */
+	int outer_cnt = w * h - inner_cnt;
+
+	if(outer_cnt <= 0) {
+		if(inner_cnt <= snake->len) {
+			// 空间不足, 退出
+			return -1;
+		} else {
+			// 尝试在内部生成
+			field->food = gen_food_inner(near, far, snake);
+		}
+	} else {
+		// 尝试在外部生成
+		field->food = gen_food_outer(w, h, near, far);
+	}
+
+	return 0;
+}
+
 
 void snake_set_collision_dist(struct snake_t *snake) {
 	struct iter_t iter;
@@ -162,6 +261,40 @@ void snake_set_food_dist(struct snake_t *snake) {
 		    abs(snake->field->food.x - snake_pos.x);
 }
 
+void snake_init(struct snake_t *snake,
+                struct field_t *field) {
+	pos_t begin_pnt = {(int)(rand() % field->wight),
+	                   (int)(rand() % field->height)};
+
+	// 使蛇向中心方向走, 避免开局撞墙
+	pos_t offset = {(int)field->wight / 2 - begin_pnt.x,
+	                (int)field->height / 2 - begin_pnt.y};
+	int dir = abs(offset.x) < abs(offset.y);
+	if(dir)
+		dir |= (offset.y < 0) << 1;
+	else
+		dir |= (offset.x < 0) << 1;
+
+	snake->field = field;
+	snake->collision_dist = INT_MAX;
+	snake->food_dist = INT_MAX;
+	snake->food_cnt = 0;
+	snake->len = 1;
+	snake->dir = dir;
+	list_init(&snake->body);
+	struct val_t val = {begin_pnt, dir, 1};
+	// 蛇头储存在链表的尾部
+	list_push_back(&snake->body, val);
+
+	snake_set_collision_dist(snake);
+	snake_set_food_dist(snake);
+}
+
+void snake_free(struct snake_t *snake) {
+	snake->len = 0;
+	list_free(&snake->body);
+}
+
 int snake_eat(struct snake_t *snake) {
 	if(snake->food_dist <= 0) {
 		snake->food_cnt++;
@@ -210,137 +343,11 @@ int snake_move(struct snake_t *snake, int dir) {
 
 	// 蛇未吃到食物
 	// 蛇尾所在的节长度减 1, 表现为蛇整体前移一格
+	// FIXME: 蛇尾节位置变化
 	list_head(&snake->body)->len--;
 	if(list_head(&snake->body)->len <= 0)
 		// 蛇尾所在的节长度为 0, 删除它
 		list_pop_front(&snake->body);
-
-	return 0;
-}
-
-
-/**
- * \param w 外部宽度
- * \param h 外部高度
- */
-pos_t gen_food_outer(int w, int h, pos_t near, pos_t far) {
-	pos_t ans = {};
-
-	/** \brief 内部格子总数 */
-	int inner_cnt =
-	    (far.x - near.x + 1) * (far.y - near.y + 1);
-	/** \brief 外部格子总数 */
-	int outer_cnt = w * h - inner_cnt;
-
-	int index = rand() % outer_cnt;
-	if(index < near.x + near.y * w) {
-		ans.x = index % w;
-		ans.y = index / w;
-	} else if(index > far.x + far.y * w) {
-		ans.x = (index + inner_cnt) % w;
-		ans.y = (index + inner_cnt) / w;
-	}
-	/* else */
-	// FIXME: O(1) 的算法实现
-	for(int i = 0; i < far.y - near.y; i++) {
-		int tmp = index + (i + 1) * (far.x - near.x + 1);
-		if(!((near.y + i) * w + far.x < tmp
-		     && tmp < (near.y + i + 1) * w + near.x))
-			continue;
-		ans.x = tmp % w;
-		ans.y = tmp / w;
-	}
-
-	return ans;
-}
-
-pos_t gen_food_inner(pos_t near, pos_t far,
-                     struct snake_t *snake) {
-	pos_t ans = {};
-	/** \brief 内部的宽高 */
-	int w = far.x - near.x + 1, h = far.y - near.y + 1;
-	int *stack = calloc(w * h, sizeof(int));
-
-	// 在栈上标注所有蛇身占用的位置
-	struct iter_t iter;
-	iter_init(&iter, &snake->body);
-	do {
-		struct val_t val = iter_val(&iter);
-		for(size_t _ = 0; _ < val.len; _++) {
-			pos_t tmp = pnt_move(val.pos, val.dir, (int)_);
-			stack[tmp.y * w + tmp.x] = 1;
-		}
-	} while(!iter_next(&iter));
-
-	// 随机生成食物在内部且未被蛇身占用位置的序号
-	int index = (int)(rand() % (w * h - snake->len));
-
-	// 将上述序号映射到内部所有位置的序号
-	for(int i = 0; i < w * h; i++) {
-		if(stack[i] == 1)
-			continue;
-		if(index == 0) {
-			ans.x = i % w;
-			ans.y = i / w;
-		}
-		index--;
-	}
-
-	// 获得食物在整个网格, 即外部的位置
-	ans.x = ans.x + near.x;
-	ans.y = ans.y + near.y;
-
-	free(stack);
-	return ans;
-}
-
-int gen_food(struct field_t *field, struct snake_t *snake) {
-	// 检测蛇身范围, 即内部
-	pos_t near = {};
-	pos_t far = {};
-
-	struct iter_t iter;
-	iter_init(&iter, &snake->body);
-	do {
-		pos_t tmp = iter_val(&iter).pos;
-		near.x = min(near.x, tmp.x);
-		near.y = min(near.y, tmp.y);
-		far.x = max(far.x, tmp.x);
-		far.y = max(far.y, tmp.y);
-	} while(!iter_next(&iter));
-
-	{
-		/** \brief snake_head */
-		struct val_t shead = *list_tail(&snake->body);
-		pos_t tmp = pnt_move(shead.pos, shead.dir,
-		                     (int)(shead.len - 1));
-		near.x = min(near.x, tmp.x);
-		near.y = min(near.y, tmp.y);
-		far.x = max(far.x, tmp.x);
-		far.y = max(far.y, tmp.y);
-	}
-
-	// 计数
-	/** \brief 外部宽高 */
-	int w = (int)field->wight, h = (int)field->wight;
-	/** \brief 内部格子总数 */
-	int inner_cnt =
-	    (far.x - near.x + 1) * (far.y - near.y + 1);
-	/** \brief 外部格子总数 */
-	int outer_cnt = w * h - inner_cnt;
-
-	if(outer_cnt <= 0) {
-		if(inner_cnt <= snake->len) {
-			// 空间不足, 退出
-			return -1;
-		} else {
-			// 尝试在内部生成
-			field->food = gen_food_inner(near, far, snake);
-		}
-	} else {
-		// 尝试在外部生成
-		field->food = gen_food_outer(w, h, near, far);
-	}
 
 	return 0;
 }

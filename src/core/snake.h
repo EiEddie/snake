@@ -44,10 +44,6 @@ void snake_init(struct snake_t* snake,
 
 void snake_free(struct snake_t* snake);
 
-void snake_set_collision_dist(struct snake_t* snake);
-
-void snake_set_food_dist(struct snake_t* snake);
-
 /**
  * \brief 移动与转向
  *
@@ -65,13 +61,5 @@ int snake_move(struct snake_t* snake, int dir);
  */
 int snake_eat(struct snake_t* snake);
 
-
-/**
- * \brief 生成食物
- *
- * \warning 使用前需设定随机数种子
- * \retval -1 生成失败: 没有空间
- */
-int gen_food(struct field_t* field, struct snake_t* snake);
 
 #endif //SNAKE_SRC_CORE_SNAKE_H_
