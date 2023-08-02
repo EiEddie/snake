@@ -343,11 +343,18 @@ int snake_move(struct snake_t *snake, int dir) {
 
 	// 蛇未吃到食物
 	// 蛇尾所在的节长度减 1, 表现为蛇整体前移一格
-	// FIXME: 蛇尾节位置变化
-	list_head(&snake->body)->len--;
-	if(list_head(&snake->body)->len <= 0)
-		// 蛇尾所在的节长度为 0, 删除它
-		list_pop_front(&snake->body);
+	{
+		/** \brief point of snake_tail */
+		struct val_t *stail_ptr = list_head(&snake->body);
+		stail_ptr->len--;
+		if(stail_ptr->len <= 0)
+			// 蛇尾所在的节长度为 0
+			// 删除它
+			list_pop_front(&snake->body);
+		else
+			// 蛇尾位置移动一格
+			pnt_move(stail_ptr->pos, stail_ptr->dir, 1);
+	}
 
 	return 0;
 }
