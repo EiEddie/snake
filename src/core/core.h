@@ -3,6 +3,7 @@
 
 #ifdef DEBUG
 #include <dbg/debug.h>
+#include <core/debug.h>
 #endif //DEBUG
 
 #include <core/list.h>
