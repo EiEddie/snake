@@ -37,6 +37,12 @@ struct snake_t {
 };
 
 /**
+ * \brief 初始化蛇
+ *
+ * 设定蛇位置, 方向, 长度(为 1 )
+ * 生成第一个食物
+ * 计算与食物的距离和碰撞距离
+ *
  * \warning 使用前需设定随机数种子
  */
 void snake_init(struct snake_t* snake,

@@ -49,19 +49,20 @@ pos_t gen_food_outer(int w, int h, pos_t near, pos_t far) {
 	if(index < near.x + near.y * w) {
 		ans.x = index % w;
 		ans.y = index / w;
-	} else if(index > far.x + far.y * w) {
+	} else if(index > far.x + far.y * w - inner_cnt) {
 		ans.x = (index + inner_cnt) % w;
 		ans.y = (index + inner_cnt) / w;
-	}
-	/* else */
-	// FIXME: O(1) 的算法实现
-	for(int i = 0; i < far.y - near.y; i++) {
-		int tmp = index + (i + 1) * (far.x - near.x + 1);
-		if(!((near.y + i) * w + far.x < tmp
-		     && tmp < (near.y + i + 1) * w + near.x))
-			continue;
-		ans.x = tmp % w;
-		ans.y = tmp / w;
+	} else {
+		// FIXME: O(1) 的算法实现
+		for(int i = 0; i < far.y - near.y; i++) {
+			int tmp =
+			    index + (i + 1) * (far.x - near.x + 1);
+			if(!((near.y + i) * w + far.x < tmp
+			     && tmp < (near.y + i + 1) * w + near.x))
+				continue;
+			ans.x = tmp % w;
+			ans.y = tmp / w;
+		}
 	}
 
 	return ans;
@@ -288,7 +289,6 @@ void snake_init(struct snake_t *snake,
 	     (int)(get_num() % field->height)};
 #endif //DEBUG
 
-
 	// 使蛇向中心方向走, 避免开局撞墙
 	pos_t offset = {(int)field->wight / 2 - begin_pnt.x,
 	                (int)field->height / 2 - begin_pnt.y};
@@ -309,6 +309,7 @@ void snake_init(struct snake_t *snake,
 	// 蛇头储存在链表的尾部
 	list_push_back(&snake->body, val);
 
+	gen_food(snake->field, snake);
 	snake_set_collision_dist(snake);
 	snake_set_food_dist(snake);
 }
@@ -367,7 +368,7 @@ int snake_move(struct snake_t *snake, int dir) {
 	// 蛇未吃到食物
 	// 蛇尾所在的节长度减 1, 表现为蛇整体前移一格
 	{
-		/** \brief point of snake_tail */
+		/** \brief snake_tail 的指针 */
 		struct val_t *stail_ptr = list_head(&snake->body);
 		stail_ptr->len--;
 		if(stail_ptr->len <= 0)
