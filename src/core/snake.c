@@ -325,6 +325,16 @@ void snake_free(struct snake_t *snake) {
 	list_free(&snake->body);
 }
 
+size_t snake_len(struct snake_t *snake) {
+	size_t len = 0;
+	struct iter_t iter;
+	iter_init(&iter, &snake->body);
+	do {
+		len += iter_val(&iter).len;
+	} while(!iter_next(&iter));
+	return len;
+}
+
 int snake_eat(struct snake_t *snake) {
 	if(snake->food_dist <= 0) {
 		snake->food_cnt++;

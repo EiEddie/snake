@@ -51,6 +51,11 @@ void snake_init(struct snake_t* snake,
 void snake_free(struct snake_t* snake);
 
 /**
+ * \brief 重新计算蛇的长度
+ */
+size_t snake_len(struct snake_t* snake);
+
+/**
  * \brief 移动与转向
  *
  * 蛇身的移动, 长度变化, 碰撞判断
