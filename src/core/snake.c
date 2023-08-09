@@ -178,7 +178,10 @@ void snake_set_collision_dist(struct snake_t *snake) {
 	snake->collision_dist = INT_MAX;
 
 	// 与自身的碰撞检测
-	pos_t snake_pos = (*list_tail(&snake->body)).pos;
+	pos_t snake_pos =
+	    pnt_move((*list_tail(&snake->body)).pos,
+	             (*list_tail(&snake->body)).dir,
+	             (int)((*list_tail(&snake->body)).len - 1));
 	do {
 		struct val_t section = iter_val(&iter);
 
@@ -252,7 +255,10 @@ void snake_set_collision_dist(struct snake_t *snake) {
 
 void snake_set_food_dist(struct snake_t *snake) {
 	snake->food_dist = INT_MAX;
-	pos_t snake_pos = (*list_tail(&snake->body)).pos;
+	pos_t snake_pos =
+	    pnt_move((*list_tail(&snake->body)).pos,
+	             (*list_tail(&snake->body)).dir,
+	             (int)((*list_tail(&snake->body)).len - 1));
 
 	// 若食物不在蛇移动方向上
 	if((snake->dir & 1
