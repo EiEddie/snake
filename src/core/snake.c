@@ -40,11 +40,11 @@ pos_t gen_food_outer(int w, int h, pos_t near, pos_t far) {
 	int outer_cnt = w * h - inner_cnt;
 
 	int index =
-#ifndef _DEBUG_
+#ifndef _TEST_
 	    rand()
 #else
 	    get_num()
-#endif //_DEBUG_
+#endif //_TEST_
 	    % outer_cnt;
 	if(index < near.x + near.y * w) {
 		ans.x = index % w;
@@ -88,7 +88,7 @@ pos_t gen_food_inner(pos_t near, pos_t far,
 
 	// 随机生成食物在内部且未被蛇身占用位置的序号
 	int index = (int)(
-#ifndef _DEBUG_
+#ifndef _TEST_
 	    rand()
 #else
 	    get_num()
@@ -122,8 +122,8 @@ pos_t gen_food_inner(pos_t near, pos_t far,
  */
 int gen_food(struct field_t *field, struct snake_t *snake) {
 	// 检测蛇身范围, 即内部
-	pos_t near = {};
-	pos_t far = {};
+	pos_t near = list_tail(&snake->body)->pos;
+	pos_t far = near;
 
 	struct iter_t iter;
 	iter_init(&iter, &snake->body);
@@ -287,13 +287,13 @@ void snake_set_food_dist(struct snake_t *snake) {
 void snake_init(struct snake_t *snake,
                 struct field_t *field) {
 	pos_t begin_pnt =
-#ifndef _DEBUG_
+#ifndef _TEST_
 	    {(int)(rand() % field->wight),
 	     (int)(rand() % field->height)};
 #else
 	    {(int)(get_num() % field->wight),
 	     (int)(get_num() % field->height)};
-#endif //_DEBUG_
+#endif //_TEST_
 
 	// 使蛇向中心方向走, 避免开局撞墙
 	pos_t offset = {(int)field->wight / 2 - begin_pnt.x,
