@@ -1,8 +1,8 @@
 #include <core/snake.h>
 
-#ifdef DEBUG
+#ifdef _DEBUG_
 #include <dbg/debug.h>
-#endif //DEBUG
+#endif //_DEBUG_
 
 
 pos_t pnt_move(pos_t pnt, int dir, int step) {
@@ -40,11 +40,11 @@ pos_t gen_food_outer(int w, int h, pos_t near, pos_t far) {
 	int outer_cnt = w * h - inner_cnt;
 
 	int index =
-#ifndef DEBUG
+#ifndef _DEBUG_
 	    rand()
 #else
 	    get_num()
-#endif //DEBUG
+#endif //_DEBUG_
 	    % outer_cnt;
 	if(index < near.x + near.y * w) {
 		ans.x = index % w;
@@ -88,7 +88,7 @@ pos_t gen_food_inner(pos_t near, pos_t far,
 
 	// 随机生成食物在内部且未被蛇身占用位置的序号
 	int index = (int)(
-#ifndef DEBUG
+#ifndef _DEBUG_
 	    rand()
 #else
 	    get_num()
@@ -287,13 +287,13 @@ void snake_set_food_dist(struct snake_t *snake) {
 void snake_init(struct snake_t *snake,
                 struct field_t *field) {
 	pos_t begin_pnt =
-#ifndef DEBUG
+#ifndef _DEBUG_
 	    {(int)(rand() % field->wight),
 	     (int)(rand() % field->height)};
 #else
 	    {(int)(get_num() % field->wight),
 	     (int)(get_num() % field->height)};
-#endif //DEBUG
+#endif //_DEBUG_
 
 	// 使蛇向中心方向走, 避免开局撞墙
 	pos_t offset = {(int)field->wight / 2 - begin_pnt.x,

@@ -15,8 +15,8 @@ endif()
 set(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	add_definitions(-DDEBUG)
-	message(STATUS "Add macro \"DEBUG\"")
+	add_definitions(-D_DEBUG_)
+	message(STATUS "Add macro \"_DEBUG_\"")
 endif()
 
 

@@ -17,6 +17,9 @@ if(NOT spdlog_FOUND)
 endif()
 
 
+add_definitions(-D_TEST_)
+message(STATUS "Add macro \"_TEST_\"")
+
 function(add_test TEST_NAME)
 	# 第一个参数作为测试的名字, 其余参数指定了测试文件
 	# 将测试文件提取出来
