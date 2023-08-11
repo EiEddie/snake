@@ -153,6 +153,37 @@ TEST(core, dist2) {
 }
 
 
+TEST(core, dist3) {
+	field_t field{};
+	field_init(&field, 10, 10);
+	snake_t snake{};
+	// 手动生成
+	{
+		snake.field = &field;
+		snake.collision_dist = INT_MAX;
+		snake.food_dist = INT_MAX;
+		snake.food_cnt = 0;
+		list_init(&snake.body);
+
+		GEN_SECTION(5, 2, 1, 5);
+		GEN_SECTION(4, 6, 2, 5);
+		GEN_SECTION(0, 5, 3, 2);
+		GEN_SECTION(1, 4, 0, 3);
+
+		snake.dir = list_tail(&snake.body)->dir;
+		snake.len = snake_len(&snake);
+	}
+
+	field.food = {9, 4};
+	snake_set_collision_dist(&snake);
+	snake_set_food_dist(&snake);
+	ASSERT_EQ(snake.collision_dist, 2);
+	ASSERT_EQ(snake.food_dist, 6);
+
+	snake_free(&snake);
+}
+
+
 void test_snake(snake_t* snake, int len,
                 const std::vector<pos_t>& poses) {
 	// 储存所有蛇身占用的位置
