@@ -11,5 +11,5 @@ int get_num() {
 	if(_num.index >= _num.numc)
 		_num.index = 0;
 
-	return _num.numv[_num.index++];
+	return _num.numv ? _num.numv[_num.index++] : 0;
 }
