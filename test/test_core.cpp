@@ -5,6 +5,14 @@ extern "C" {
 }
 
 
+#define GEN_SECTION(pos_x, pos_y, dir, len)     \
+	do {                                        \
+		pos_t __pos = {pos_x, pos_y};           \
+		struct val_t __val = {__pos, dir, len}; \
+		list_push_back(&snake.body, __val);     \
+	} while(0)
+
+
 TEST(core, gen_food_outer) {
 	field_t field{};
 	field_init(&field, 10, 10);
@@ -17,22 +25,13 @@ TEST(core, gen_food_outer) {
 		snake.food_cnt = 0;
 		list_init(&snake.body);
 
-		pos_t pos_3rd = {3, 2};
-		struct val_t third = {pos_3rd, 1, 3};
-		list_push_back(&snake.body, third);
-
-		pos_t pos_2nd = {4, 4};
-		struct val_t second = {pos_2nd, 0, 2};
-		list_push_back(&snake.body, second);
-
-		pos_t pos_1st = {5, 5};
-		struct val_t first = {pos_1st, 1, 2};
-		list_push_back(&snake.body, first);
+		GEN_SECTION(3, 2, 1, 3);
+		GEN_SECTION(4, 4, 0, 2);
+		GEN_SECTION(5, 5, 1, 2);
 
 		snake.dir = list_tail(&snake.body)->dir;
 		snake.len = snake_len(&snake);
 	}
-
 
 	int nums[] = {0, 19, 23, 36, 51, 55, 84};
 	set_num(nums, 7);
@@ -63,17 +62,9 @@ TEST(core, gen_food_inner) {
 		snake.food_cnt = 0;
 		list_init(&snake.body);
 
-		pos_t pos_3rd = {0, 0};
-		struct val_t third = {pos_3rd, 1, 3};
-		list_push_back(&snake.body, third);
-
-		pos_t pos_2nd = {1, 2};
-		struct val_t second = {pos_2nd, 0, 2};
-		list_push_back(&snake.body, second);
-
-		pos_t pos_1st = {2, 3};
-		struct val_t first = {pos_1st, 1, 2};
-		list_push_back(&snake.body, first);
+		GEN_SECTION(0, 0, 1, 3);
+		GEN_SECTION(1, 2, 0, 2);
+		GEN_SECTION(2, 3, 1, 2);
 
 		snake.dir = list_tail(&snake.body)->dir;
 		snake.len = snake_len(&snake);
@@ -91,6 +82,72 @@ TEST(core, gen_food_inner) {
 		EXPECT_EQ(field.food.y, poses[i].y)
 		    << "when i is: " << i << '\n';
 	}
+
+	snake_free(&snake);
+}
+
+
+TEST(core, dist1) {
+	field_t field{};
+	field_init(&field, 10, 10);
+	snake_t snake{};
+	// 手动生成
+	{
+		snake.field = &field;
+		snake.collision_dist = INT_MAX;
+		snake.food_dist = INT_MAX;
+		snake.food_cnt = 0;
+		list_init(&snake.body);
+
+		GEN_SECTION(1, 4, 0, 3);
+
+		snake.dir = list_tail(&snake.body)->dir;
+		snake.len = snake_len(&snake);
+	}
+
+	field.food = {0, 0};
+	snake_set_collision_dist(&snake);
+	snake_set_food_dist(&snake);
+	ASSERT_EQ(snake.collision_dist, 7);
+	ASSERT_EQ(snake.food_dist, INT_MAX);
+
+	field.food = {7, 4};
+	snake_set_collision_dist(&snake);
+	snake_set_food_dist(&snake);
+	ASSERT_EQ(snake.collision_dist, 7);
+	ASSERT_EQ(snake.food_dist, 4);
+
+	snake_free(&snake);
+}
+
+
+TEST(core, dist2) {
+	field_t field{};
+	field_init(&field, 10, 10);
+	snake_t snake{};
+	// 手动生成
+	{
+		snake.field = &field;
+		snake.collision_dist = INT_MAX;
+		snake.food_dist = INT_MAX;
+		snake.food_cnt = 0;
+		list_init(&snake.body);
+
+		GEN_SECTION(7, 4, 2, 3);
+		GEN_SECTION(5, 5, 1, 2);
+		GEN_SECTION(4, 6, 2, 5);
+		GEN_SECTION(0, 5, 3, 2);
+		GEN_SECTION(1, 4, 0, 3);
+
+		snake.dir = list_tail(&snake.body)->dir;
+		snake.len = snake_len(&snake);
+	}
+
+	field.food = {9, 4};
+	snake_set_collision_dist(&snake);
+	snake_set_food_dist(&snake);
+	ASSERT_EQ(snake.collision_dist, 2);
+	ASSERT_EQ(snake.food_dist, 6);
 
 	snake_free(&snake);
 }
