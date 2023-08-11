@@ -74,8 +74,8 @@ pos_t gen_food_inner(pos_t near, pos_t far,
 	iter_init(&iter, &snake->body);
 	do {
 		struct val_t val = iter_val(&iter);
-		for(size_t _ = 0; _ < val.len; _++) {
-			pos_t tmp = pnt_move(val.pos, val.dir, (int)_);
+		for(size_t i = 0; i < val.len; i++) {
+			pos_t tmp = pnt_move(val.pos, val.dir, (int)i);
 			stack[tmp.y * w + tmp.x] = 1;
 		}
 	} while(!iter_next(&iter));
@@ -329,7 +329,9 @@ int snake_eat(struct snake_t *snake) {
 }
 
 int snake_move(struct snake_t *snake, int dir) {
-	if((dir + snake->dir) % 2 != 0) {
+	int snake_dir = snake->dir;
+
+	if((dir + snake_dir) % 2 != 0) {
 		// 给定的方向与蛇移动方向不平行
 		// 即蛇将要转向
 		// 设定新的蛇头所在的节
@@ -343,20 +345,25 @@ int snake_move(struct snake_t *snake, int dir) {
 		struct val_t new_shead = {new_shead_pos, dir, 1};
 		list_push_back(&snake->body, new_shead);
 
+		snake->dir = dir;
+
 		snake_set_food_dist(snake);
 		snake_set_collision_dist(snake);
 	}
 
-	if(snake->collision_dist <= 1)
-		return -1;
-
-	snake->food_dist--;
-	snake->collision_dist--;
-
-	if((dir + snake->dir) % 2 == 0)
+	if((dir + snake_dir) % 2 == 0) {
 		// 蛇直行
+
+		if(snake->collision_dist <= 1)
+			return -1;
+
+		// 更新距离
+		snake->food_dist--;
+		snake->collision_dist--;
+
 		// 蛇头所在节长度加 1
 		list_tail(&snake->body)->len++;
+	}
 
 	if(snake_eat(snake) == 0) {
 		snake->len++;
@@ -375,7 +382,8 @@ int snake_move(struct snake_t *snake, int dir) {
 			list_pop_front(&snake->body);
 		else
 			// 蛇尾位置移动一格
-			pnt_move(stail_ptr->pos, stail_ptr->dir, 1);
+			stail_ptr->pos =
+			    pnt_move(stail_ptr->pos, stail_ptr->dir, 1);
 	}
 
 	return 0;

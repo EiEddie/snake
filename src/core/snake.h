@@ -61,7 +61,13 @@ size_t snake_len(struct snake_t* snake);
  * 蛇身的移动, 长度变化, 碰撞判断
  * 蛇头转向, 重设与障碍和食物的距离
  *
+ * \param dir 移动方向
+ *
+ * 当此方向与蛇头垂直时, 蛇转向并行走一格
+ * 当此方向与蛇头垂直时, 蛇直行一格
+ *
  * \retval -1 发生碰撞
+ * \warning 发生碰撞后蛇的状态不可预期
  */
 int snake_move(struct snake_t* snake, int dir);
 
