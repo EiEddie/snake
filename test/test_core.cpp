@@ -151,3 +151,76 @@ TEST(core, dist2) {
 
 	snake_free(&snake);
 }
+
+
+void test_snake(snake_t* snake, int len,
+                const std::vector<pos_t>& poses) {
+	// 储存所有蛇身占用的位置
+	std::vector<pos_t> _poses;
+	iter_t iter{};
+	iter_init(&iter, &snake->body);
+	do {
+		struct val_t val = iter_val(&iter);
+		for(size_t i = 0; i < val.len; i++) {
+			pos_t tmp = pnt_move(val.pos, val.dir, (int)i);
+			_poses.push_back(tmp);
+		}
+	} while(!iter_next(&iter));
+
+	ASSERT_EQ(_poses.size(), len);
+	for(auto i: poses) {
+		ASSERT_TRUE(std::find_if(_poses.begin(),
+		                         _poses.end(),
+		                         [i](auto pos) {
+			                         return i.x == pos.x
+			                             && i.y == pos.y;
+		                         })
+		            != _poses.end());
+	}
+}
+
+TEST(core, move) {
+	field_t field{};
+	field_init(&field, 10, 10);
+	field.food = {4, 1};
+	snake_t snake{};
+	// 手动生成
+	{
+		snake.field = &field;
+		snake.collision_dist = INT_MAX;
+		snake.food_dist = INT_MAX;
+		snake.food_cnt = 0;
+		list_init(&snake.body);
+
+		GEN_SECTION(1, 0, 0, 3);
+
+		snake.dir = list_tail(&snake.body)->dir;
+		snake.len = snake_len(&snake);
+
+		snake_set_food_dist(&snake);
+		snake_set_collision_dist(&snake);
+	}
+
+	snake_move(&snake, 0);
+	test_snake(&snake, 3, {{4, 0}, {3, 0}, {2, 0}});
+
+	snake_move(&snake, 1);
+	test_snake(&snake, 4, {{4, 1}, {4, 0}, {3, 0}, {2, 0}});
+
+	snake_move(&snake, 0);
+	test_snake(&snake, 4, {{5, 1}, {4, 1}, {4, 0}, {3, 0}});
+
+	snake_move(&snake, 3);
+	test_snake(&snake, 4, {{5, 0}, {5, 1}, {4, 1}, {4, 0}});
+
+	snake_move(&snake, 2);
+	test_snake(&snake, 4, {{4, 0}, {5, 0}, {5, 1}, {4, 1}});
+
+	snake_move(&snake, 2);
+	test_snake(&snake, 4, {{3, 0}, {4, 0}, {5, 0}, {5, 1}});
+
+	snake_move(&snake, 2);
+	test_snake(&snake, 4, {{2, 0}, {3, 0}, {4, 0}, {5, 0}});
+
+	snake_free(&snake);
+}
