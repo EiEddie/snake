@@ -4,6 +4,11 @@
 #include <stddef.h>
 
 
+#ifdef _TEST_
+// 在测试时代替随机数
+#define rand get_num
+#endif //_TEST_
+
 static struct {
 	int* numv;
 	size_t numc;
