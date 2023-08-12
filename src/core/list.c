@@ -63,3 +63,7 @@ int iter_next(struct iter_t* iter) {
 struct val_t iter_val(struct iter_t* iter) {
 	return iter->self->val;
 }
+
+struct val_t* iter_ptr(struct iter_t* iter) {
+	return &iter->self->val;
+}

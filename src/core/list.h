@@ -57,4 +57,9 @@ int iter_next(struct iter_t* iter);
 
 struct val_t iter_val(struct iter_t* iter);
 
+/**
+ * \return 指向值的指针
+ */
+struct val_t* iter_ptr(struct iter_t* iter);
+
 #endif //SNAKE_SRC_CORE_LIST_H_
