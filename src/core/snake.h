@@ -26,8 +26,8 @@ void field_init(struct field_t* field, size_t wight,
 struct snake_t {
 	struct field_t* field;
 
-	int collision_dist;
-	int food_dist;
+	int32_t collision_dist;
+	int32_t food_dist;
 
 	int food_cnt;
 

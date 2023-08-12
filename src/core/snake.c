@@ -170,73 +170,84 @@ void snake_set_collision_dist(struct snake_t *snake) {
 	    pnt_move((*list_tail(&snake->body)).pos,
 	             (*list_tail(&snake->body)).dir,
 	             (int)((*list_tail(&snake->body)).len - 1));
+	int snk_x = snake_pos.x;
+	int snk_y = snake_pos.y;
+
 	do {
-		struct val_t section = iter_val(&iter);
+		struct val_t sec = iter_val(&iter);
+		int sec_x = sec.pos.x;
+		int sec_y = sec.pos.y;
 
 		// 若此节与蛇头不垂直
-		if(!((section.dir + snake->dir) % 2))
+		if(!((sec.dir + snake->dir) % 2))
 			continue;
 
 		// 若此节不在蛇移动方向上
-		if((snake->dir & 1
-		        // 上下移动
-		        ? section.pos.y < snake_pos.y
-		        // 左右移动
-		        : section.pos.x < snake_pos.x)
-		   ^ (snake->dir & 0b10))
-			continue;
+		// 且此节横或纵坐标与蛇头不重合
+		if(snake->dir & 1) {
+			// 上下移动
+			if(((sec_y < snk_y)
+			    ^ ((snake->dir & 0b10) != 0))
+			   && (sec_y != snk_y))
+				continue;
+		} else {
+			// 左右移动
+			if(((sec_x < snk_x)
+			    ^ ((snake->dir & 0b10) != 0))
+			   && (sec_x != snk_x))
+				continue;
+		}
 
-		pos_t section_bg =
-		    pnt_move(section.pos, section.dir + 2, 1);
-		pos_t section_ed = pnt_move(
-		    section.pos, section.dir, (int)section.len - 1);
+		pos_t sec_bg =
+		    iter_ptr(&iter) == list_head(&snake->body)
+		    ? sec.pos
+		    : pnt_move(sec.pos, sec.dir + 2, 1);
+		pos_t sec_ed =
+		    pnt_move(sec.pos, sec.dir, (int)sec.len - 1);
 
 		// 若此节不在蛇头正前方
 		if(snake->dir & 1) {
 			// 上下移动
-			if(min(section_bg.x, section_ed.x) > snake_pos.x
-			   || max(section_bg.x, section_ed.x)
-			       < snake_pos.x)
+			if(min(sec_bg.x, sec_ed.x) > snk_x
+			   || max(sec_bg.x, sec_ed.x) < snk_x)
 				continue;
 		} else {
 			// 左右移动
-			if(min(section_bg.y, section_ed.y) > snake_pos.y
-			   || max(section_bg.y, section_ed.y)
-			       < snake_pos.y)
+			if(min(sec_bg.y, sec_ed.y) > snk_y
+			   || max(sec_bg.y, sec_ed.y) < snk_y)
 				continue;
 		}
 
 		if(snake->dir & 1)
 			// 上下移动
-			snake->collision_dist =
-			    min(snake->collision_dist,
-			        abs(section.pos.y - snake_pos.y));
+			snake->collision_dist = min(
+			    snake->collision_dist, abs(sec_y - snk_y));
 		else
 			// 左右移动
-			snake->collision_dist =
-			    min(snake->collision_dist,
-			        abs(section.pos.x - snake_pos.x));
+			snake->collision_dist = min(
+			    snake->collision_dist, abs(sec_x - snk_x));
 	} while(!iter_next(&iter));
 
 	// 与墙壁的碰撞检测
+	int h = (int)snake->field->height;
+	int w = (int)snake->field->wight;
+
 	switch(snake->dir) {
 	case 0:
 		snake->collision_dist =
-		    min(snake->collision_dist,
-		        snake->field->wight - snake_pos.x);
+		    min(snake->collision_dist, w - snk_x);
 		break;
 	case 1:
 		snake->collision_dist =
-		    min(snake->collision_dist,
-		        snake->field->height - snake_pos.y);
+		    min(snake->collision_dist, h - snk_y);
 		break;
 	case 2:
 		snake->collision_dist =
-		    min(snake->collision_dist, snake_pos.x + 1);
+		    min(snake->collision_dist, snk_x + 1);
 		break;
 	case 3:
 		snake->collision_dist =
-		    min(snake->collision_dist, snake_pos.y + 1);
+		    min(snake->collision_dist, snk_y + 1);
 		break;
 	}
 }
@@ -247,29 +258,30 @@ void snake_set_food_dist(struct snake_t *snake) {
 	    pnt_move((*list_tail(&snake->body)).pos,
 	             (*list_tail(&snake->body)).dir,
 	             (int)((*list_tail(&snake->body)).len - 1));
+	int snk_x = snake_pos.x;
+	int snk_y = snake_pos.y;
+	int food_x = snake->field->food.x;
+	int food_y = snake->field->food.y;
 
 	// 若食物不在蛇移动方向上
 	if((snake->dir & 1
 	        // 上下移动
-	        ? snake->field->food.y < snake_pos.y
+	        ? food_y < snk_y
 	        // 左右移动
-	        : snake->field->food.x < snake_pos.x)
-	   ^ (snake->dir & 0b10))
+	        : food_x < snk_x)
+	   ^ !!(snake->dir & 0b10))
 		return;
 
 	// 若食物不在蛇头正前方
-	if(snake->dir & 1 ? snake->field->food.x != snake_pos.x
-	                  : snake->field->food.y != snake_pos.y)
+	if(snake->dir & 1 ? food_x != snk_x : food_y != snk_y)
 		return;
 
 	if(snake->dir & 1)
 		// 上下移动
-		snake->food_dist =
-		    abs(snake->field->food.y - snake_pos.y);
+		snake->food_dist = abs(food_y - snk_y);
 	else
 		// 左右移动
-		snake->food_dist =
-		    abs(snake->field->food.x - snake_pos.x);
+		snake->food_dist = abs(food_x - snk_x);
 }
 
 void snake_init(struct snake_t *snake,
@@ -363,6 +375,11 @@ int snake_move(struct snake_t *snake, int dir) {
 
 		// 蛇头所在节长度加 1
 		list_tail(&snake->body)->len++;
+	} else {
+		// 蛇转弯
+
+		if(snake->collision_dist <= 0)
+			return -1;
 	}
 
 	if(snake_eat(snake) == 0) {
