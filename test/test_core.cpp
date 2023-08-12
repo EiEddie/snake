@@ -213,7 +213,7 @@ void test_snake(snake_t* snake, int len,
 TEST(core, move) {
 	field_t field{};
 	field_init(&field, 10, 10);
-	field.food = {4, 1};
+	field.food = {2, 0};
 	snake_t snake{};
 	// 手动生成
 	{
@@ -232,26 +232,33 @@ TEST(core, move) {
 		snake_set_collision_dist(&snake);
 	}
 
-	snake_move(&snake, 0);
+	int is_collide = 0;
+
+	is_collide |= snake_move(&snake, 0);
 	test_snake(&snake, 3, {{4, 0}, {3, 0}, {2, 0}});
 
-	snake_move(&snake, 1);
-	test_snake(&snake, 4, {{4, 1}, {4, 0}, {3, 0}, {2, 0}});
+	is_collide |= snake_move(&snake, 1);
+	test_snake(&snake, 3, {{4, 1}, {4, 0}, {3, 0}});
 
-	snake_move(&snake, 0);
-	test_snake(&snake, 4, {{5, 1}, {4, 1}, {4, 0}, {3, 0}});
+	is_collide |= snake_move(&snake, 0);
+	test_snake(&snake, 3, {{5, 1}, {4, 1}, {4, 0}});
 
-	snake_move(&snake, 3);
-	test_snake(&snake, 4, {{5, 0}, {5, 1}, {4, 1}, {4, 0}});
+	is_collide |= snake_move(&snake, 3);
+	test_snake(&snake, 3, {{5, 0}, {5, 1}, {4, 1}});
 
-	snake_move(&snake, 2);
-	test_snake(&snake, 4, {{4, 0}, {5, 0}, {5, 1}, {4, 1}});
+	is_collide |= snake_move(&snake, 2);
+	test_snake(&snake, 3, {{4, 0}, {5, 0}, {5, 1}});
 
-	snake_move(&snake, 2);
-	test_snake(&snake, 4, {{3, 0}, {4, 0}, {5, 0}, {5, 1}});
+	is_collide |= snake_move(&snake, 2);
+	test_snake(&snake, 3, {{3, 0}, {4, 0}, {5, 0}});
 
-	snake_move(&snake, 2);
+	is_collide |= snake_move(&snake, 2);
 	test_snake(&snake, 4, {{2, 0}, {3, 0}, {4, 0}, {5, 0}});
+
+	ASSERT_FALSE(is_collide);
+
+	is_collide |= snake_move(&snake, 3);
+	ASSERT_TRUE(is_collide);
 
 	snake_free(&snake);
 }
