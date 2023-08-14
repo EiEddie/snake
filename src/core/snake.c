@@ -366,20 +366,17 @@ int snake_move(struct snake_t *snake, int dir) {
 	if((dir + snake_dir) % 2 == 0) {
 		// 蛇直行
 
-		if(snake->collision_dist <= 1)
-			return -1;
-
 		// 更新距离
 		snake->food_dist--;
 		snake->collision_dist--;
 
 		// 蛇头所在节长度加 1
 		list_tail(&snake->body)->len++;
-	} else {
-		// 蛇转弯
+	}
 
-		if(snake->collision_dist <= 0)
-			return -1;
+	// 撞到障碍
+	if(snake->collision_dist <= 0)
+		return -1;
 	}
 
 	if(snake_eat(snake) == 0) {
