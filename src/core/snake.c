@@ -186,14 +186,12 @@ void snake_set_collision_dist(struct snake_t *snake) {
 		// 且此节横或纵坐标与蛇头不重合
 		if(snake->dir & 1) {
 			// 上下移动
-			if(((sec_y < snk_y)
-			    ^ ((snake->dir & 0b10) != 0))
+			if(((sec_y < snk_y) ^ !!(snake->dir & 0b10))
 			   && (sec_y != snk_y))
 				continue;
 		} else {
 			// 左右移动
-			if(((sec_x < snk_x)
-			    ^ ((snake->dir & 0b10) != 0))
+			if(((sec_x < snk_x) ^ !!(snake->dir & 0b10))
 			   && (sec_x != snk_x))
 				continue;
 		}
@@ -264,13 +262,18 @@ void snake_set_food_dist(struct snake_t *snake) {
 	int food_y = snake->field->food.y;
 
 	// 若食物不在蛇移动方向上
-	if((snake->dir & 1
-	        // 上下移动
-	        ? food_y < snk_y
-	        // 左右移动
-	        : food_x < snk_x)
-	   ^ !!(snake->dir & 0b10))
-		return;
+	// 且此节横或纵坐标与蛇头不重合
+	if(snake->dir & 1) {
+		// 上下移动
+		if(((food_y < snk_y) ^ !!(snake->dir & 0b10))
+		   && (food_y != snk_y))
+			return;
+	} else {
+		// 左右移动
+		if(((food_x < snk_x) ^ !!(snake->dir & 0b10))
+		   && (food_x != snk_x))
+			return;
+	}
 
 	// 若食物不在蛇头正前方
 	if(snake->dir & 1 ? food_x != snk_x : food_y != snk_y)
@@ -377,7 +380,6 @@ int snake_move(struct snake_t *snake, int dir) {
 	// 撞到障碍
 	if(snake->collision_dist <= 0)
 		return -1;
-	}
 
 	if(snake_eat(snake) == 0) {
 		snake->len++;
