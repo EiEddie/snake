@@ -19,10 +19,16 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	message(STATUS "Add macro \"_DEBUG_\"")
 endif()
 
+set(CURSES_NEED_NCURSES TRUE)
+set(CURSES_NEED_WIDE TRUE)
+find_package(Curses REQUIRED)
 
 include_directories("${PROJECT_SOURCE_DIR}/src")
 file(GLOB_RECURSE SRC_FILE "${PROJECT_SOURCE_DIR}/src/*")
 
 if(SRC_FILE)
 	add_executable(${CMAKE_PROJECT_NAME} ${SRC_FILE})
+	target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CURSES_INCLUDE_DIRS})
+	target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE ${CURSES_CFLAGS})
+	target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${CURSES_LIBRARIES})
 endif()
