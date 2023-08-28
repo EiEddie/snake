@@ -164,10 +164,13 @@ void display_update(void) {
 	       != list_head(&_dtgt.snake->body)->pos.x
 	   || _dbuf.snk_tail_prev.y
 	       != list_head(&_dtgt.snake->body)->pos.y) {
-		mvprintw(
-		    _dbuf.snk_tail_prev.y + _dbuf.begin.y + 1,
-		    _dbuf.snk_tail_prev.x * 2 + _dbuf.begin.x + 1,
-		    "  ");
+		if(_dbuf.snk_tail_prev.x != _dbuf.snk_head.x
+		   || _dbuf.snk_tail_prev.y != _dbuf.snk_head.y)
+			mvprintw(
+			    _dbuf.snk_tail_prev.y + _dbuf.begin.y + 1,
+			    _dbuf.snk_tail_prev.x * 2 + _dbuf.begin.x
+			        + 1,
+			    "  ");
 		_dbuf.snk_tail_prev =
 		    list_head(&_dtgt.snake->body)->pos;
 	}

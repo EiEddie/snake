@@ -361,12 +361,7 @@ int snake_move(struct snake_t *snake, int dir) {
 		list_push_back(&snake->body, new_shead);
 
 		snake->dir = dir;
-
-		snake_set_food_dist(snake);
-		snake_set_collision_dist(snake);
-	}
-
-	if((dir + snake_dir) % 2 == 0) {
+	} else {
 		// 蛇直行
 
 		// 更新距离
@@ -377,18 +372,13 @@ int snake_move(struct snake_t *snake, int dir) {
 		list_tail(&snake->body)->len++;
 	}
 
-	// 撞到障碍
-	if(snake->collision_dist <= 0)
-		return -1;
+	if((dir + snake_dir) % 2 != 0)
+		snake_set_food_dist(snake);
 
-	if(snake_eat(snake) == 0) {
-		snake->len++;
-		return 0;
-	}
+	if(snake_eat(snake) != 0) {
+		// 蛇未吃到食物
+		// 蛇尾所在的节长度减 1, 表现为蛇整体前移一格
 
-	// 蛇未吃到食物
-	// 蛇尾所在的节长度减 1, 表现为蛇整体前移一格
-	{
 		/** \brief snake_tail 的指针 */
 		struct val_t *stail_ptr = list_head(&snake->body);
 		stail_ptr->len--;
@@ -400,7 +390,16 @@ int snake_move(struct snake_t *snake, int dir) {
 			// 蛇尾位置移动一格
 			stail_ptr->pos =
 			    pnt_move(stail_ptr->pos, stail_ptr->dir, 1);
+	} else {
+		snake->len++;
 	}
 
-	return 0;
+	if((dir + snake_dir) % 2 != 0)
+		snake_set_collision_dist(snake);
+
+	// 撞到障碍
+	if(snake->collision_dist <= 0)
+		return -1;
+	else
+		return 0;
 }
