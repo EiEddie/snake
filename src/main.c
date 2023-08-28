@@ -75,7 +75,7 @@ int main() {
 		if(cnt % (unit_msec / loop_msec) == 0) {
 			if(snake_move(&snake,
 			              dir == -1 ? snake.dir : dir))
-				goto EXIT;
+				goto END;
 			else
 				dir = -1;
 			display_update();
@@ -84,6 +84,10 @@ int main() {
 		usleep(loop_msec * 1000);
 		cnt++;
 	}
+
+END:;
+	nodelay(stdscr, false);
+	getch();
 
 EXIT:;
 	display_free();
