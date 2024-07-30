@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <algorithm>
 
 extern "C" {
 #include <core/core.h>
