@@ -1,6 +1,27 @@
 #include <display/tui.h>
 
 
+static struct {
+	struct field_t* field;
+	struct snake_t* snake;
+} _dtgt = {NULL, NULL};
+
+
+static struct {
+	pos_t begin;
+
+	pos_t snk_head;
+	pos_t snk_head_prev;
+
+	pos_t snk_tail_prev;
+
+	pos_t food;
+	pos_t food_prev;
+
+	size_t snk_len;
+} _dbuf;
+
+
 void display_buf_refresh() {
 	_dbuf.begin.x =
 	    (int)(COLS - _dtgt.field->wight * 2 - 2) / 2;
@@ -121,17 +142,24 @@ void display_flush(void) {
 
 void display_update(void) {
 #ifdef _DEBUG_
+	pos_t __tmp_pos =
+	    pnt_move(list_tail(&_dtgt.snake->body)->pos,
+	             list_tail(&_dtgt.snake->body)->dir,
+	             list_tail(&_dtgt.snake->body)->len - 1);
 	mvprintw(0, 0,
 	         "len:%zu,dir:%d,"
 	         "fdist:%d,cdist:%d,"
 	         "food:(%d,%d),"
-	         "tail:(%d,%d),\n",
+	         "tail:(%d,%d),"
+	         "head:(%d,%d),"
+	         "\n",
 	         _dtgt.snake->len, _dtgt.snake->dir,
 	         _dtgt.snake->food_dist,
 	         _dtgt.snake->collision_dist,
 	         _dtgt.field->food.x, _dtgt.field->food.y,
 	         list_head(&_dtgt.snake->body)->pos.x,
-	         list_head(&_dtgt.snake->body)->pos.y);
+	         list_head(&_dtgt.snake->body)->pos.y,
+	         __tmp_pos.x, __tmp_pos.y);
 #endif //_DEBUG_
 
 	// 食物

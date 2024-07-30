@@ -9,13 +9,6 @@
 #define rand get_num
 #endif //_TEST_
 
-static struct {
-	int* numv;
-	size_t numc;
-	size_t index;
-} _num = {NULL, 0, 0};
-
-
 /**
  * \brief 设定函数 `get_num` 的值
  *
