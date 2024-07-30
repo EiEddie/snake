@@ -6,6 +6,9 @@
 build
 bin
 
+# Others
+tmp
+
 # Docs building lists
 _build
 _templates
