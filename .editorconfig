@@ -33,3 +33,7 @@ indent_size = 2
 [*.{html,css}]
 indent_style = space
 indent_size = 2
+
+[meson.build]
+indent_style = space
+indent_size = 4

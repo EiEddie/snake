@@ -38,7 +38,7 @@ AllowShortLoopsOnASingleLine: false
 
 AlwaysBreakAfterReturnType: None
 
-AlwaysBreakBeforeMultilineStrings: true
+AlwaysBreakBeforeMultilineStrings: false
 
 AlwaysBreakTemplateDeclarations: Yes
 
